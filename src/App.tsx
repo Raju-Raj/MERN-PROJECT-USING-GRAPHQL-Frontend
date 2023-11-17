@@ -1,25 +1,52 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useSelector,useDispatch } from "react-redux";
+import Auth from "./components/auth/Auth";
+import Blogs from "./components/blogs/Blogs";
+import Header from "./components/header/Header";
+import Footer from "./components/home/Footer";
+import Homepage from "./components/home/HomePage";
+import {Routes,Route} from "react-router-dom";
+import {useEffect} from 'react';
+import { authActions } from "./store/auth-slice";
+import Profile from "./components/header/user/Profile";
+import AddBlog from "./components/blogs/AddBlog";
+import ViewBlog from "./components/blogs/ViewBlog";
+import { Toaster } from "react-hot-toast";
+import UpdateBlog from "./components/blogs/UpdateBlog";
+import NotFound from "./not-found/NotFound";
+
 
 function App() {
+  const dispatch = useDispatch()
+  const isLoggedIn:boolean = useSelector((state:any)=>state.isLoggedIn);
+  useEffect(() => {
+    const data:string = localStorage.getItem("userData") as string;
+    if(JSON.parse(data) !== null){
+      dispatch(authActions.login())
+    }
+  }, [])
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+     <div className="wrapper">
+      <Toaster/>
+      <header>
+          <Header/>
       </header>
-    </div>
+      <main>
+        <Routes>
+          <Route path="/" element={<Homepage/>}/>
+          <Route path="/blogs" element={<Blogs/>}/>
+          {!isLoggedIn && <Route path="/auth" element={<Auth/>}/>}
+          {isLoggedIn && <Route path="/add" element={<AddBlog/>}/>}
+          <Route path="/profile" element={<Profile/>}/>
+          <Route path="/blog/view/:id" element={<ViewBlog/>}/>
+          {isLoggedIn && <Route path="/blog/update/:id" element={<UpdateBlog/>}/>}
+          <Route path="*" element={<NotFound/>}/>
+        </Routes>
+      </main>
+     <footer>
+       <Footer/>
+     </footer>
+     </div>
+    
   );
 }
 
